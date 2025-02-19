@@ -1,15 +1,15 @@
 package ru.practicum.shareit.user.service;
 
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicatedEmailExcep;
 import ru.practicum.shareit.exception.NotFoundExcep;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserStorage;
 
 import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -26,8 +26,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updUser(Integer id, User updUser) {
         if (userStorage.getUserById(id) == null) throw new NotFoundExcep("Пользователь с ID = " + id + " не найден");
-        if (updUser.getEmail() != null && emailCheck(updUser)) throw new DuplicatedEmailExcep("Данная почта уже используется");
-        //if (emailCheck(updUser)) throw new DuplicatedEmailExcep("Данная почта уже используется");
+        if (updUser.getEmail() != null && emailCheck(updUser))
+            throw new DuplicatedEmailExcep("Данная почта уже используется");
         return userStorage.updUser(id, updUser);
     }
 

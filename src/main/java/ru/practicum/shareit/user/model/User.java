@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +12,7 @@ import ru.practicum.shareit.validations.Create;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class User {
     private Integer id;
 
     @NotNull(groups = Create.class, message = "Name cannot be null")
