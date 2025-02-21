@@ -15,10 +15,10 @@ import ru.practicum.shareit.validations.Create;
 public class UserDto {
     private Integer id;
 
-    @NotNull(groups = Create.class, message = "Name cannot be null")
+    @NotNull(groups = Create.class, message = "Имя не может быть null")
     private String name;
 
-    @Email(groups = Create.class, message = "Invalid email format")
-    @NotNull(groups = Create.class, message = "Email cannot be null")
+    @Email(groups = Create.class, message = "Не верный формат почты")
+    @NotNull(groups = Create.class, message = "Почта не может быть null")
     private String email;
 }

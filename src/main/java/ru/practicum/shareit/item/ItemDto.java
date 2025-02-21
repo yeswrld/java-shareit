@@ -1,17 +1,19 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.validations.Create;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
-public class Item {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ItemDto {
     private Integer id;
     @NotBlank(groups = Create.class, message = "Имя не может быть пустым")
     private String name;

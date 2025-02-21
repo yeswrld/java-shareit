@@ -24,21 +24,21 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto addUser(@RequestBody @Validated(Create.class) User user) {
         log.info("Пользователь {} добавлен", user.getName());
-        return UserMapper.INSTANCE.toUserDto(userService.addUser(user));
+        return UserMapper.MAPPER.toUserDto(userService.addUser(user));
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserDto update(@RequestBody @Validated(Update.class) User user, @PathVariable Integer id) {
         log.info("Данные пользователя с ID = {} обновлены", id);
-        return UserMapper.INSTANCE.toUserDto(userService.updUser(id, user));
+        return UserMapper.MAPPER.toUserDto(userService.updUser(id, user));
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getAll() {
         log.info("Выводим всех пользователей");
-        List<UserDto> users = UserMapper.INSTANCE.toUserDtoList(userService.getAll());
+        List<UserDto> users = UserMapper.MAPPER.toUserDtoList(userService.getAll());
         return users;
     }
 
@@ -46,7 +46,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public UserDto getById(@PathVariable Integer id) {
         log.info("Данные пользователя с ID = {} выведены", id);
-        return UserMapper.INSTANCE.toUserDto(userService.getUserById(id));
+        return UserMapper.MAPPER.toUserDto(userService.getUserById(id));
     }
 
     @DeleteMapping("/{id}")

@@ -25,7 +25,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updUser(Integer id, User updUser) {
-        if (userStorage.getUserById(id) == null) throw new NotFoundExcep("Пользователь с ID = " + id + " не найден");
         if (updUser.getEmail() != null && emailCheck(updUser))
             throw new DuplicatedEmailExcep("Данная почта уже используется");
         return userStorage.updUser(id, updUser);
@@ -39,7 +38,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Integer id) {
-        if (userStorage.getUserById(id) == null) throw new NotFoundExcep("Пользователь с ID = " + id + " не найден");
         userStorage.delete(id);
     }
 
