@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.validations.Create;
 
 @Getter
