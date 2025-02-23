@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.user.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.validations.Create;
 
@@ -21,5 +22,5 @@ public class ItemDto {
     private String description;
     @NotNull(groups = Create.class, message = "Available не может быть null")
     private Boolean available;
-    private User owner;
+    private UserDto owner;
 }

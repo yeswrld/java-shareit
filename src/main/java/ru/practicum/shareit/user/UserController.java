@@ -51,6 +51,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
+        log.info("Удаляем пользователя с ID = {} ", id);
         userService.delete(id);
     }
 

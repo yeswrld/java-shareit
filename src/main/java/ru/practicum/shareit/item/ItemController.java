@@ -17,17 +17,17 @@ import java.util.List;
 public class ItemController {
     private final ItemService itemService;
     private final ItemMapper itemMapper;
+private static final String USERID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestBody @Validated(Create.class) ItemDto itemDto) {
+    public ItemDto addItem(@RequestHeader(USERID_HEADER) Integer userId, @RequestBody @Validated(Create.class) ItemDto itemDto) {
         log.info("Предмет c именем {} добавлен", itemDto.getName());
         return itemService.addNewItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemDtoId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public ItemDto updateItem(@RequestHeader(USERID_HEADER) Integer userId,
                               @PathVariable Integer itemDtoId,
                               @RequestBody ItemDto itemDto) {
         log.info("Предмет c именем {} обновлен", itemDto.getName());
@@ -35,21 +35,18 @@ public class ItemController {
     }
 
     @GetMapping("/{itemDtoId}")
-    @ResponseStatus(HttpStatus.OK)
     public ItemDto getItemByItemId(@PathVariable Integer itemDtoId) {
         log.info("Выводим предмет c ИД = {} ", itemDtoId);
         return itemService.getByItemId(itemDtoId);
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<ItemDto> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") Integer userId) {
+    public List<ItemDto> getItemsByUserId(@RequestHeader(USERID_HEADER) Integer userId) {
         log.info("Выводим предметы пользователя c ИД = {} ", userId);
         return itemService.getAllByUserId(userId);
     }
 
     @GetMapping("/search")
-    @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> searchItemByText(@RequestParam String text) {
         log.info("Ищем предмет с {} в описании", text);
         return itemService.searchByText(text);
