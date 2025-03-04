@@ -6,9 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class ShareItTests {
 
-	@Test
-	void contextLoads() {
-		//asda
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
