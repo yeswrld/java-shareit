@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DuplicatedEmailExcep;
 import ru.practicum.shareit.exception.NotFoundExcep;
 import ru.practicum.shareit.user.model.User;
@@ -13,37 +14,46 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
+    @Transactional
     @Override
     public User addUser(User user) {
         if (emailCheck(user)) throw new DuplicatedEmailExcep("Данная почта уже используется");
-        userStorage.addUser(user);
+        userStorage.save(user);
         return user;
     }
 
+    @Transactional
     @Override
     public User updUser(Integer id, User updUser) {
         if (updUser.getEmail() != null && emailCheck(updUser))
             throw new DuplicatedEmailExcep("Данная почта уже используется");
-        return userStorage.updUser(id, updUser);
+        User updatedUser = userStorage.findById(id).orElseThrow(() -> new NotFoundExcep("Пользователь с ID = " + id + " не найден"));
+        if (updUser.getName() != null) {
+            updatedUser.setName(updUser.getName());
+        }
+        if (updUser.getEmail() != null) {
+            updatedUser.setEmail(updUser.getEmail());
+        }
+        return userStorage.save(updatedUser);
     }
 
     @Override
     public User getUserById(Integer id) {
-        if (userStorage.getUserById(id) == null) throw new NotFoundExcep("Пользователь с ID = " + id + " не найден");
-        return userStorage.getUserById(id);
+        return userStorage.findById(id).orElseThrow(() -> new NotFoundExcep("Пользователь с ID = " + id + " не найден"));
     }
 
     @Override
     public void delete(Integer id) {
-        userStorage.delete(id);
+        userStorage.deleteById(id);
     }
 
     @Override
     public List<User> getAll() {
-        return userStorage.getAll();
+        return userStorage.findAll();
     }
 
     private boolean emailCheck(User user) {
