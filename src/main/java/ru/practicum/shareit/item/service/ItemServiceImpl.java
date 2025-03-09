@@ -74,7 +74,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getByItemId(Integer userId, Integer itemId) {
         Item item = itemStorage.findById(itemId).orElseThrow(() -> new NotFoundExcep("Предмет не найден"));
         ItemDto itemDto = itemMapper.toItemDto(item);
-        if (item.getOwner().getId() == userId) {
+        if (item.getOwner().getId().equals(userId)) {
             addBookingInfo(itemDto);
         }
         addComments(itemDto);
