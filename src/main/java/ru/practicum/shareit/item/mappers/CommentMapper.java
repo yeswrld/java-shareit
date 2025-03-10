@@ -13,11 +13,8 @@ import java.util.stream.Collectors;
 public interface CommentMapper {
     CommentMapper MAPPER = Mappers.getMapper(CommentMapper.class);
 
-    //    @Mapping(source = "id", target = "id")
-//    @Mapping(source = "text", target = "text")
     @Mapping(target = "authorName", source = "author.name")
     @Mapping(target = "itemId", source = "item.id")
-//    @Mapping(source = "created", target = "created")
     CommentDto toCommentDto(Comment comment);
 
     Comment toComment(CommentDto commentDto);
