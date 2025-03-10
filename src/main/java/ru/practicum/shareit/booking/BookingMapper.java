@@ -10,29 +10,15 @@ import ru.practicum.shareit.booking.model.Booking;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = BookingMapper.class)
 public interface BookingMapper {
 
-    BookingMapper MAPPER = Mappers.getMapper(BookingMapper.class);
-
-    @Mapping(source = "id", target = "id")
-    @Mapping(source = "start", target = "start")
-    @Mapping(source = "end", target = "end")
-    @Mapping(source = "item", target = "item")
-    @Mapping(source = "booker", target = "booker")
-    @Mapping(source = "status", target = "status")
     BookingDto toBookingDto(Booking booking);
 
     BookingRequestDto toBookingRequestDto(BookingRequestDto bookingRequestDto);
 
     Booking requestToBooking(BookingRequestDto bookingRequestDto);
 
-    @Mapping(source = "id", target = "id")
-    @Mapping(source = "start", target = "start")
-    @Mapping(source = "end", target = "end")
-    @Mapping(source = "item", target = "item")
-    @Mapping(source = "booker", target = "booker")
-    @Mapping(source = "status", target = "status")
     Booking toBooking(BookingDto bookingDto);
 
     default List<BookingDto> toBookingDtoList(List<Booking> bookings) {
