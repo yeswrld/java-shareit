@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface BookingStorage extends JpaRepository<Booking, Integer> {
     @Query("SELECT b FROM Booking b WHERE b.item.id = :itemId AND b.booker.id = :userId AND " +
-            "b.status = ru.practicum.shareit.booking.model.BookingStatus.APPROVED AND b.end < :currentTime")
+           "b.status = ru.practicum.shareit.booking.model.BookingStatus.APPROVED AND b.end < :currentTime")
     List<Booking> findAllApprovedByItemIdAndBookerId(long itemId, long userId, LocalDateTime currentTime);
 
     List<Booking> findAllByItemId(Integer id);
