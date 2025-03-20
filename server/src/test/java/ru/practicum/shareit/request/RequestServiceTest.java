@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemStorage;
 import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestWithItemsDto;
@@ -52,7 +50,7 @@ public class RequestServiceTest {
 
     @Test
     @DisplayName("Получение всех запросов пользователя")
-    void getAllUserRequests(){
+    void getAllUserRequests() {
         ItemRequestDto itemRequestDto = itemRequestService.create(itemRequestCreateDto, user1.getId());
         ItemRequestCreateDto itemRequestCreateDto1 = new ItemRequestCreateDto();
         itemRequestCreateDto1.setDescription("Нужна еще какая-то вещь");
@@ -65,7 +63,7 @@ public class RequestServiceTest {
 
     @Test
     @DisplayName("Получение всех запросов")
-    void getAllRequests(){
+    void getAllRequests() {
         ItemRequestDto itemRequestDto = itemRequestService.create(itemRequestCreateDto, user1.getId());
         ItemRequestCreateDto itemRequestCreateDto1 = new ItemRequestCreateDto();
         itemRequestCreateDto1.setDescription("Нужна еще какая-то вещь");
@@ -78,7 +76,7 @@ public class RequestServiceTest {
 
     @Test
     @DisplayName("Получение запроса по его ИД")
-    void getRequestById(){
+    void getRequestById() {
         ItemRequestDto itemRequestDto = itemRequestService.create(itemRequestCreateDto, user1.getId());
         ItemRequestWithItemsDto requestDtoFromDb = itemRequestService.getByRequstId(itemRequestDto.getId());
         assertThat(requestDtoFromDb).isNotNull();
