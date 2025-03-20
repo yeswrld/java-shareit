@@ -111,7 +111,6 @@ public class BookingServiceTest {
     @Test
     @DisplayName("Получение всех бронирований владельца с фильтром ALL")
     void getByOwnerIdWithAll() {
-        // Arrange: добавляем два бронирования
         BookingDto bookingDto1 = bookingService.addNewBooking(user1.getId(), bookingRequestDto);
         bookingService.updateBooking(owner.getId(), bookingDto1.getId(), true);
 
