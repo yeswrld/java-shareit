@@ -49,6 +49,9 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto updateBooking(Integer userId, Integer bookingId, boolean approved) {
         User user = userStorage.findById(userId).orElseThrow(() -> new BadRequestExcep("Пользователь не найден"));
         Booking booking = bookingStorage.findById(bookingId).orElseThrow(() -> new NotFoundExcep("Бронирование не найдено"));
+        if (!booking.getItem().getOwner().getId().equals(user.getId())) {
+            throw new BadRequestExcep("Бронирование подтверждает только владелец предмета");
+        }
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
         } else booking.setStatus(BookingStatus.CANCELED);
@@ -70,17 +73,12 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public List<BookingDto> searchByText(String text) {
-        return List.of();
-    }
-
-    @Override
     public List<BookingDto> getByOwnerId(Integer ownerId, BookingState bookingState) {
         userStorage.findById(ownerId).orElseThrow(() -> new NotFoundExcep("Пользователь не найден"));
         List<Booking> bookings = List.of();
         LocalDateTime now = LocalDateTime.now();
         switch (bookingState) {
-            case ALL -> bookings = bookingStorage.findAllByBooker_IdOrderByStartDesc(ownerId);
+            case ALL -> bookings = bookingStorage.findAllByItem_Owner_IdOrderByStartDesc(ownerId);
             case CURRENT ->
                     bookings = bookingStorage.findByItem_Owner_IdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now);
             case PAST -> bookings = bookingStorage.findByItem_Owner_IdAndEndBeforeOrderByStartDesc(ownerId, now);

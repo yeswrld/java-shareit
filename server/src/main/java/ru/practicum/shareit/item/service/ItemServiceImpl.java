@@ -74,11 +74,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getByUserId(Integer userId, Integer itemId) {
-        return null;
-    }
-
-    @Override
     public ItemDto getByItemId(Integer userId, Integer itemId) {
         Item item = itemStorage.findById(itemId).orElseThrow(() -> new NotFoundExcep("Предмет не найден"));
         ItemDto itemDto = itemMapper.toItemDto(item);

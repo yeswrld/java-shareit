@@ -75,7 +75,6 @@ public class RequestControllerTest {
         commentDto.setAuthorName("Петр");
 
         itemDto = new ItemDto();
-        itemDto = new ItemDto();
         itemDto.setId(1);
         itemDto.setName("Вещь 1");
         itemDto.setDescription("Описание вещи 1");

@@ -32,7 +32,7 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto getBookingByOwner(@RequestHeader(USERID_HEADER) Integer userId, @PathVariable Integer bookingId) {
+    public BookingDto getBookingByUserId(@RequestHeader(USERID_HEADER) Integer userId, @PathVariable Integer bookingId) {
         log.info("Выводим бронирование {} пользователем {}", bookingId, userId);
         return bookingService.getByUserId(userId, bookingId);
     }

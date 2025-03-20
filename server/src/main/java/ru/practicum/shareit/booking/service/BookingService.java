@@ -15,7 +15,5 @@ public interface BookingService {
 
     List<BookingDto> findAll();
 
-    List<BookingDto> searchByText(String text);
-
     List<BookingDto> getByOwnerId(Integer ownerId, BookingState bookingState);
 }
