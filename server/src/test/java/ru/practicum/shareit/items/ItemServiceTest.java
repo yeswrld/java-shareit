@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.BookingStorage;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.BadRequestExcep;
 import ru.practicum.shareit.exception.NotFoundExcep;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -80,6 +81,16 @@ public class ItemServiceTest {
     }
 
     @Test
+    @DisplayName("Добавление предмета несуществующим пользователем")
+    void addItemWithInvalidUser() {
+        int invalidUserId = 999;
+        assertThatExceptionOfType(NotFoundExcep.class)
+                .isThrownBy(() -> itemService.addNewItem(invalidUserId, item1))
+                .withMessageContaining("Пользователь не найден");
+    }
+
+
+    @Test
     @DisplayName("Обновление предмета")
     void updateItem() {
         ItemDto newItem = itemService.addNewItem(owner.getId(), item1);
@@ -90,6 +101,34 @@ public class ItemServiceTest {
         assertThat(myasorubka.getName()).isEqualTo("Мясорубка");
         assertThat(myasorubka.getDescription()).isEqualTo("Для прокрутки мяса");
     }
+
+    @Test
+    @DisplayName("Обновление несуществующего предмета")
+    void updateNonExistingItem() {
+        int invalidItemId = 999;
+        ItemDto updatedDto = new ItemDto();
+        updatedDto.setName("Мясорубка");
+        assertThatExceptionOfType(NotFoundExcep.class)
+                .isThrownBy(() -> itemService.updateItem(owner.getId(), invalidItemId, updatedDto))
+                .withMessageContaining("Предмет не найден");
+    }
+
+    @Test
+    @DisplayName("Обновление предмета не существующим пользователем")
+    void updateItemByAnotherUser() {
+        ItemDto newItem = itemService.addNewItem(owner.getId(), item1);
+        User anotherUser = new User();
+        anotherUser.setId(3);
+        anotherUser.setName("Другой пользователь");
+        anotherUser.setEmail("user3@ya.com");
+        userService.addUser(anotherUser);
+        ItemDto updatedDto = new ItemDto();
+        updatedDto.setName("Мясорубка");
+        assertThatExceptionOfType(NotFoundExcep.class)
+                .isThrownBy(() -> itemService.updateItem(anotherUser.getId(), newItem.getId(), updatedDto))
+                .withMessageContaining("Пользователь не найден");
+    }
+
 
     @Test
     @DisplayName("Поиск предмета по ИД")
@@ -127,6 +166,15 @@ public class ItemServiceTest {
         assertThat(founded).hasSize(2);
         assertThat(founded).extracting(ItemDto::getName).containsExactlyInAnyOrder("Перфоратор", "Вилка");
     }
+
+    @Test
+    @DisplayName("Поиск предмета по пустому тексту")
+    void searchItemByEmptyText() {
+        itemService.addNewItem(owner.getId(), item1);
+        List<ItemDto> founded = itemService.searchByText("");
+        assertThat(founded).isEmpty();
+    }
+
 
     @Test
     @DisplayName("Добавление комментария")
@@ -169,5 +217,46 @@ public class ItemServiceTest {
                 .isThrownBy(() -> itemService.addComment(commentDto, 23, item1.getId()))
                 .withMessage("Пользователь не найден");
     }
+    @Test
+    @DisplayName("Добавление комментария без бронирования")
+    void addCommentWithoutBooking() {
+        userService.addUser(user1);
+        Item item = new Item();
+        item.setName("Вещь для ДБ");
+        item.setDescription("Описание вещи для ДБ");
+        item.setAvailable(true);
+        item.setOwner(owner);
+        itemStorage.save(item);
+        assertThatExceptionOfType(BadRequestExcep.class).isThrownBy(() -> itemService.addComment(commentDto, user1.getId(), item.getId()))
+                .withMessageContaining("которые было бронирование");
+    }
 
+    @Test
+    @DisplayName("Получение предмета с комментариями")
+    void getItemWithComments() {
+        userService.addUser(user1);
+        Item item = new Item();
+        item.setName("Вещь для ДБ");
+        item.setDescription("Описание вещи для ДБ");
+        item.setAvailable(true);
+        item.setOwner(owner);
+        itemStorage.save(item);
+
+        Booking booking = new Booking();
+        booking.setStart(LocalDateTime.now().minusDays(2));
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+        booking.setItem(item);
+        booking.setBooker(user1);
+        booking.setStatus(BookingStatus.APPROVED);
+        bookingStorage.save(booking);
+
+        CommentDto comment = new CommentDto();
+        comment.setText("Отличная вещь!");
+        itemService.addComment(comment, user1.getId(), item.getId());
+
+        ItemDto itemDto = itemService.getByItemId(owner.getId(), item.getId());
+
+        assertThat(itemDto.getComments()).hasSize(1);
+        assertThat(itemDto.getComments().getFirst().getText()).isEqualTo("Отличная вещь!");
+    }
 }

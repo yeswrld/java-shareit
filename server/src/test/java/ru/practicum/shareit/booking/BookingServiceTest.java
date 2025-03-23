@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.BadRequestExcep;
+import ru.practicum.shareit.exception.NotFoundExcep;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemStorage;
 import ru.practicum.shareit.user.model.User;
@@ -127,5 +128,86 @@ public class BookingServiceTest {
                 .containsExactlyInAnyOrder(BookingStatus.APPROVED, BookingStatus.WAITING);
     }
 
+    @Test
+    @DisplayName("Получение текущих бронирований владельца")
+    void getByOwnerIdWithCurrent() {
+        BookingRequestDto bookingRequestDto = new BookingRequestDto();
+        bookingRequestDto.setItemId(item.getId());
+        bookingRequestDto.setStart(LocalDateTime.now().minusDays(1));
+        bookingRequestDto.setEnd(LocalDateTime.now().plusDays(1));
 
+        BookingDto bookingDto = bookingService.addNewBooking(user1.getId(), bookingRequestDto);
+        bookingService.updateBooking(owner.getId(), bookingDto.getId(), true);
+
+        List<BookingDto> bookingDtos = bookingService.getByOwnerId(owner.getId(), BookingState.CURRENT);
+
+        assertThat(bookingDtos).hasSize(1);
+        assertThat(bookingDtos.get(0).getStatus()).isEqualTo(BookingStatus.APPROVED);
+    }
+
+    @Test
+    @DisplayName("Получение прошедших бронирований владельца")
+    void getByOwnerIdWithPast() {
+        BookingRequestDto bookingRequestDto = new BookingRequestDto();
+        bookingRequestDto.setItemId(item.getId());
+        bookingRequestDto.setStart(LocalDateTime.now().minusDays(3));
+        bookingRequestDto.setEnd(LocalDateTime.now().minusDays(2));
+
+        BookingDto bookingDto = bookingService.addNewBooking(user1.getId(), bookingRequestDto);
+        bookingService.updateBooking(owner.getId(), bookingDto.getId(), true);
+
+        List<BookingDto> bookingDtos = bookingService.getByOwnerId(owner.getId(), BookingState.PAST);
+
+        assertThat(bookingDtos).hasSize(1);
+        assertThat(bookingDtos.get(0).getStatus()).isEqualTo(BookingStatus.APPROVED);
+    }
+
+    @Test
+    @DisplayName("Получение будущих бронирований владельца")
+    void getByOwnerIdWithFuture() {
+        BookingRequestDto bookingRequestDto = new BookingRequestDto();
+        bookingRequestDto.setItemId(item.getId());
+        bookingRequestDto.setStart(LocalDateTime.now().plusDays(1));
+        bookingRequestDto.setEnd(LocalDateTime.now().plusDays(2));
+
+        BookingDto bookingDto = bookingService.addNewBooking(user1.getId(), bookingRequestDto);
+
+        List<BookingDto> bookingDtos = bookingService.getByOwnerId(owner.getId(), BookingState.FUTURE);
+
+        assertThat(bookingDtos).hasSize(1);
+        assertThat(bookingDtos.get(0).getStatus()).isEqualTo(BookingStatus.WAITING);
+    }
+
+    @Test
+    @DisplayName("Обработка ошибки при получении бронирований несуществующего владельца")
+    void getByOwnerIdWithInvalidOwner() {
+        Integer invalidOwnerId = 999;
+
+        assertThatExceptionOfType(NotFoundExcep.class)
+                .isThrownBy(() -> bookingService.getByOwnerId(invalidOwnerId, BookingState.ALL))
+                .withMessageContaining("не найден");
+    }
+
+    @Test
+    @DisplayName("Получение всех бронирований")
+    void findAllBookings() {
+        BookingRequestDto bookingRequestDto1 = new BookingRequestDto();
+        bookingRequestDto1.setItemId(item.getId());
+        bookingRequestDto1.setStart(LocalDateTime.now().minusDays(3));
+        bookingRequestDto1.setEnd(LocalDateTime.now().minusDays(2));
+        bookingService.addNewBooking(user1.getId(), bookingRequestDto1);
+
+        BookingRequestDto bookingRequestDto2 = new BookingRequestDto();
+        bookingRequestDto2.setItemId(item.getId());
+        bookingRequestDto2.setStart(LocalDateTime.now().plusDays(1));
+        bookingRequestDto2.setEnd(LocalDateTime.now().plusDays(2));
+        bookingService.addNewBooking(user1.getId(), bookingRequestDto2);
+
+        List<BookingDto> bookingDtos = bookingService.findAll();
+
+        assertThat(bookingDtos).hasSize(2);
+        assertThat(bookingDtos)
+                .extracting(bookingDto -> bookingDto.getItem().getName())
+                .containsOnly("Вещь для ДБ");
+    }
 }

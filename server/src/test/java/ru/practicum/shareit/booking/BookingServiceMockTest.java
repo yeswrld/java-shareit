@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.exception.NotFoundExcep;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemStorage;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -304,5 +306,15 @@ public class BookingServiceMockTest {
         verify(userStorage, times(1)).findById(1);
         verify(bookingStorage, times(1)).findAllByItem_Owner_IdOrderByStartDesc(1);
         verify(bookingMapper, times(1)).toBookingDtoList(anyList());
+    }
+
+    @Test
+    @DisplayName("Обработка ошибки при получении бронирований несуществующего владельца")
+    void getByOwnerIdWithInvalidOwner() {
+        int invalidOwnerId = 999;
+        when(userStorage.findById(invalidOwnerId)).thenReturn(Optional.empty());
+        assertThatExceptionOfType(NotFoundExcep.class)
+                .isThrownBy(() -> bookingService.getByOwnerId(invalidOwnerId, BookingState.ALL))
+                .withMessageContaining("Пользователь не найден");
     }
 }
