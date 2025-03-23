@@ -74,11 +74,31 @@ public class BookingServiceTest {
     }
 
     @Test
+    @DisplayName("Попытка забронировать недоступную вещь")
+    void addBookingForUnavailableItem() {
+        item.setAvailable(false);
+        itemStorage.save(item);
+        assertThatExceptionOfType(BadRequestExcep.class)
+                .isThrownBy(() -> bookingService.addNewBooking(user1.getId(), bookingRequestDto))
+                .withMessageContaining("Вещь недоступна для брони");
+    }
+
+
+    @Test
     @DisplayName("Подтверждение бронирования")
     void updateBooking() {
         BookingDto bookingDto = bookingService.addNewBooking(user1.getId(), bookingRequestDto);
         BookingDto updatedDto = bookingService.updateBooking(owner.getId(), bookingDto.getId(), true);
         assertThat(updatedDto.getStatus()).isEqualTo(BookingStatus.APPROVED);
+    }
+
+    @Test
+    @DisplayName("Отклонение бронирования")
+    void rejectBooking() {
+        BookingDto bookingDto = bookingService.addNewBooking(user1.getId(), bookingRequestDto);
+        BookingDto updatedDto = bookingService.updateBooking(owner.getId(), bookingDto.getId(), false);
+
+        assertThat(updatedDto.getStatus()).isEqualTo(BookingStatus.CANCELED);
     }
 
     @Test
@@ -107,6 +127,23 @@ public class BookingServiceTest {
         assertThat(bookingFromUser1).isNotNull();
         assertThat(bookingFromUser1.getBooker().getName()).isEqualTo(user1.getName());
         assertThat(bookingFromUser1.getStatus()).isEqualTo(BookingStatus.WAITING);
+    }
+
+    @Test
+    @DisplayName("Получение бронирования несуществующим пользователем")
+    void getByUserIdWithInvalidUser() {
+        BookingDto bookingDto = bookingService.addNewBooking(user1.getId(), bookingRequestDto);
+        assertThatExceptionOfType(BadRequestExcep.class)
+                .isThrownBy(() -> bookingService.getByUserId(999, bookingDto.getId()))
+                .withMessageContaining("Пользователь не найден");
+    }
+
+    @Test
+    @DisplayName("Получение несуществующего бронирования")
+    void getByUserIdWithInvalidBooking() {
+        assertThatExceptionOfType(NotFoundExcep.class)
+                .isThrownBy(() -> bookingService.getByUserId(user1.getId(), 999))
+                .withMessageContaining("Бронирование не найдено");
     }
 
     @Test
@@ -189,6 +226,21 @@ public class BookingServiceTest {
     }
 
     @Test
+    @DisplayName("Получение бронирований со статусом WAITING")
+    void getByOwnerIdWithWaiting() {
+        BookingRequestDto waitingBookingRequest = new BookingRequestDto();
+        waitingBookingRequest.setItemId(item.getId());
+        waitingBookingRequest.setStart(LocalDateTime.now().plusDays(1));
+        waitingBookingRequest.setEnd(LocalDateTime.now().plusDays(2));
+        bookingService.addNewBooking(user1.getId(), waitingBookingRequest);
+
+        List<BookingDto> bookingDtos = bookingService.getByOwnerId(owner.getId(), BookingState.WAITING);
+
+        assertThat(bookingDtos).hasSize(1);
+        assertThat(bookingDtos.get(0).getStatus()).isEqualTo(BookingStatus.WAITING);
+    }
+
+    @Test
     @DisplayName("Получение всех бронирований")
     void findAllBookings() {
         BookingRequestDto bookingRequestDto1 = new BookingRequestDto();
@@ -209,5 +261,13 @@ public class BookingServiceTest {
         assertThat(bookingDtos)
                 .extracting(bookingDto -> bookingDto.getItem().getName())
                 .containsOnly("Вещь для ДБ");
+    }
+
+    @Test
+    @DisplayName("Получение всех бронирований при их отсутствии")
+    void findAllWithNoBookings() {
+        List<BookingDto> bookingDtos = bookingService.findAll();
+
+        assertThat(bookingDtos).isEmpty();
     }
 }

@@ -114,6 +114,30 @@ public class ItemServiceTest {
     }
 
     @Test
+    @DisplayName("Обновление только имени предмета")
+    void updateOnlyName() {
+        ItemDto newItem = itemService.addNewItem(owner.getId(), item1);
+        ItemDto updatedDto = new ItemDto();
+        updatedDto.setName("Новое имя");
+        ItemDto updatedItem = itemService.updateItem(owner.getId(), newItem.getId(), updatedDto);
+        assertThat(updatedItem.getName()).isEqualTo("Новое имя");
+        assertThat(updatedItem.getDescription()).isEqualTo(item1.getDescription());
+        assertThat(updatedItem.getAvailable()).isEqualTo(item1.getAvailable());
+    }
+
+    @Test
+    @DisplayName("Обновление только описания предмета")
+    void updateOnlyDescription() {
+        ItemDto newItem = itemService.addNewItem(owner.getId(), item1);
+        ItemDto updatedDto = new ItemDto();
+        updatedDto.setDescription("Новое описание");
+        ItemDto updatedItem = itemService.updateItem(owner.getId(), newItem.getId(), updatedDto);
+        assertThat(updatedItem.getName()).isEqualTo(item1.getName());
+        assertThat(updatedItem.getDescription()).isEqualTo("Новое описание");
+        assertThat(updatedItem.getAvailable()).isEqualTo(item1.getAvailable());
+    }
+
+    @Test
     @DisplayName("Обновление предмета не существующим пользователем")
     void updateItemByAnotherUser() {
         ItemDto newItem = itemService.addNewItem(owner.getId(), item1);
@@ -129,6 +153,32 @@ public class ItemServiceTest {
                 .withMessageContaining("Пользователь не найден");
     }
 
+    @Test
+    @DisplayName("Обновление с пустыми или нулевыми значениями")
+    void updateWithEmptyOrNullValues() {
+        ItemDto newItem = itemService.addNewItem(owner.getId(), item1);
+        ItemDto updatedDto = new ItemDto();
+        updatedDto.setName("");
+        updatedDto.setDescription(null);
+        ItemDto updatedItem = itemService.updateItem(owner.getId(), newItem.getId(), updatedDto);
+        assertThat(updatedItem.getName()).isEqualTo(item1.getName());
+        assertThat(updatedItem.getDescription()).isEqualTo(item1.getDescription());
+        assertThat(updatedItem.getAvailable()).isEqualTo(item1.getAvailable());
+    }
+
+    @Test
+    @DisplayName("Обновление всеми полями")
+    void updateAllFields() {
+        ItemDto newItem = itemService.addNewItem(owner.getId(), item1);
+        ItemDto updatedDto = new ItemDto();
+        updatedDto.setName("Новое имя");
+        updatedDto.setDescription("Новое описание");
+        updatedDto.setAvailable(false);
+        ItemDto updatedItem = itemService.updateItem(owner.getId(), newItem.getId(), updatedDto);
+        assertThat(updatedItem.getName()).isEqualTo("Новое имя");
+        assertThat(updatedItem.getDescription()).isEqualTo("Новое описание");
+        assertThat(updatedItem.getAvailable()).isFalse();
+    }
 
     @Test
     @DisplayName("Поиск предмета по ИД")
