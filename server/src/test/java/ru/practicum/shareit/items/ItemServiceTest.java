@@ -217,6 +217,7 @@ public class ItemServiceTest {
                 .isThrownBy(() -> itemService.addComment(commentDto, 23, item1.getId()))
                 .withMessage("Пользователь не найден");
     }
+
     @Test
     @DisplayName("Добавление комментария без бронирования")
     void addCommentWithoutBooking() {
