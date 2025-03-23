@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.BookingStorage;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.exception.NotFoundExcep;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mappers.CommentMapper;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -257,5 +259,22 @@ public class ItemServiceMockTest {
         verify(commentStorage, times(1)).save((any()));
     }
 
+    @Test
+    @DisplayName("Добавление комментария к несуществующему предмету")
+    void addCommentToInvalidItem() {
+        Integer userId = user.getId();
+        Integer invalidItemId = 999;
+
+        when(userStorage.findById(userId)).thenReturn(Optional.of(user));
+        when(itemStorage.findById(invalidItemId)).thenReturn(Optional.empty());
+
+        assertThatExceptionOfType(NotFoundExcep.class)
+                .isThrownBy(() -> itemService.addComment(commentDto, userId, invalidItemId))
+                .withMessageContaining("Предмет не найден");
+
+        verify(userStorage, times(1)).findById(userId);
+        verify(itemStorage, times(1)).findById(invalidItemId);
+        verify(commentStorage, never()).save(any(Comment.class));
+    }
 
 }

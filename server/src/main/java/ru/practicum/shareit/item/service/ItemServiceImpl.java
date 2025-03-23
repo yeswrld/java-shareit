@@ -50,7 +50,7 @@ public class ItemServiceImpl implements ItemService {
         item.setOwner(user);
         if (itemDto.getRequestId() != null) {
             ItemRequest itemRequest = requestStorage.findById(itemDto.getRequestId())
-                    .orElseThrow(() -> new NotFoundExcep("Запрос на вещь не  найден"));
+                    .orElseThrow(() -> new NotFoundExcep("Запрос на вещь не найден"));
             item.setItemRequest(itemRequest);
         }
         return itemMapper.toItemDto(itemStorage.save(item));

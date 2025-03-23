@@ -87,6 +87,18 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Обновление пользователя с повторной почтой")
+    void updUserWithExistingEmail() {
+        User user3 = new User();
+        user3.setName("Кирилл");
+        user3.setEmail("petr@mail.ru");
+        userService.addUser(user3);
+        assertThatExceptionOfType(DuplicatedEmailExcep.class)
+                .isThrownBy(() -> userService.updUser(user3.getId(), user2))
+                .withMessageContaining("почта уже используется");
+    }
+
+    @Test
     @DisplayName("Получение пользователя по ИД")
     void getUserById() {
         User userOne = userService.addUser(user1);

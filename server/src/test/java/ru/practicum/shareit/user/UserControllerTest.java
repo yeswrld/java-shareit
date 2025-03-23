@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.NotFoundExcep;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -89,6 +90,30 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Обновление пользователя с частичными данными (только имя)")
+    void updateUserWithPartialData() throws Exception {
+        User updatedUser = new User();
+        updatedUser.setName("Иван Обновленный");
+
+        User updatedDbUser = new User();
+        updatedDbUser.setId(1);
+        updatedDbUser.setName("Иван Обновленный");
+        updatedDbUser.setEmail("vanyane@mail.ru");
+
+        when(userService.updUser(eq(1), any(User.class))).thenReturn(updatedDbUser);
+
+        mockMvc.perform(patch("/users/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedUser)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Иван Обновленный"))
+                .andExpect(jsonPath("$.email").value("vanyane@mail.ru"));
+        verify(userService, times(1)).updUser(eq(1), any(User.class));
+    }
+
+
+    @Test
     @DisplayName("Получение всех пользователей")
     void getAllUsers() throws Exception {
         when(userService.getAll()).thenReturn(List.of(user, user2));
@@ -112,6 +137,18 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.name").value(userDto2.getName()))
                 .andExpect(jsonPath("$.email").value(userDto2.getEmail()));
         verify(userService, times(1)).getUserById(2);
+    }
+
+    @Test
+    @DisplayName("Получение пользователя по несуществующему ИД")
+    void getUserByInvalidId() throws Exception {
+        int invalidUserId = 999;
+        when(userService.getUserById(invalidUserId)).thenThrow(new NotFoundExcep("Пользователь не найден"));
+
+        mockMvc.perform(get("/users/{id}", invalidUserId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Пользователь не найден"));
+        verify(userService, times(1)).getUserById(invalidUserId);
     }
 
     @Test

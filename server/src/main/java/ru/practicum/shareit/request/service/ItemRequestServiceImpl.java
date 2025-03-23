@@ -59,4 +59,5 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<ItemDto> items = itemMapper.toItemDtoList(itemsForRequest);
         return itemRequestMapper.toItemRequestWithItems(itemRequest, items);
     }
+
 }

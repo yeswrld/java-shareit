@@ -89,6 +89,21 @@ public class ItemServiceTest {
                 .withMessageContaining("Пользователь не найден");
     }
 
+    @Test
+    @DisplayName("Добавление предмета с несуществующим запросом")
+    void addItemWithInvalidRequest() {
+        // Arrange: создаем DTO для предмета с несуществующим requestId
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Item1");
+        itemDto.setDescription("Item1des");
+        itemDto.setAvailable(true);
+        itemDto.setRequestId(999); // Несуществующий requestId
+
+        // Act & Assert: проверяем, что выбрасывается исключение
+        assertThatExceptionOfType(NotFoundExcep.class)
+                .isThrownBy(() -> itemService.addNewItem(owner.getId(), itemDto))
+                .withMessageContaining("Запрос на вещь не найден");
+    }
 
     @Test
     @DisplayName("Обновление предмета")

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -114,6 +115,25 @@ public class RequestServiceMockTest {
         verify(requestMapper, times(1)).toItemRequest(itemRequestCreateDto, user);
         verify(requestMapper, times(1)).toItemRequestDto(any(ItemRequest.class));
         verify(requestStorage, times(1)).save(any(ItemRequest.class));
+    }
+
+    @Test
+    @DisplayName("Создание запроса на вещь с возвращением null от маппера")
+    void createWithNullFromMapper() {
+        Integer requesterId = 1;
+        User user = new User();
+        user.setId(requesterId);
+        user.setName("Name");
+        user.setEmail("email@email.ru");
+        ItemRequestCreateDto itemRequestCreateDto = new ItemRequestCreateDto();
+        itemRequestCreateDto.setDescription("Нужна дрель");
+        when(userStorage.findById(requesterId)).thenReturn(Optional.of(user));
+        when(requestMapper.toItemRequest(any(ItemRequestCreateDto.class), eq(user))).thenReturn(null);
+        assertThatExceptionOfType(NullPointerException.class)
+                .isThrownBy(() -> requestService.create(itemRequestCreateDto, requesterId));
+        verify(userStorage, times(1)).findById(requesterId);
+        verify(requestMapper, times(1)).toItemRequest(any(ItemRequestCreateDto.class), eq(user));
+        verifyNoInteractions(requestStorage); // requestStorage не должен быть вызван, так как itemRequest == null
     }
 
     @Test

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.NotFoundExcep;
 import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestWithItemsDto;
@@ -16,7 +17,8 @@ import ru.practicum.shareit.user.repository.UserStorage;
 
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -83,4 +85,24 @@ public class RequestServiceTest {
         assertThat(requestDtoFromDb.getDescription()).isEqualTo("Нужен перфоратор");
         assertThat(requestDtoFromDb.getId()).isEqualTo(itemRequestDto.getId());
     }
+
+    @Test
+    @DisplayName("Получение запроса по несуществующему ID")
+    void getRequestByInvalidId() {
+        int invalidRequestId = 999;
+        assertThatThrownBy(() -> itemRequestService.getByRequstId(invalidRequestId))
+                .isInstanceOf(NotFoundExcep.class)
+                .hasMessageContaining("Запрос не найден");
+    }
+
+    @Test
+    @DisplayName("Получение запроса без связанных предметов")
+    void getRequestWithoutItems() {
+        ItemRequestDto itemRequestDto = itemRequestService.create(itemRequestCreateDto, user1.getId());
+        ItemRequestWithItemsDto requestWithItems = itemRequestService.getByRequstId(itemRequestDto.getId());
+        assertThat(requestWithItems).isNotNull();
+        assertThat(requestWithItems.getDescription()).isEqualTo("Нужен перфоратор");
+        assertThat(requestWithItems.getItems()).isEmpty();
+    }
+
 }

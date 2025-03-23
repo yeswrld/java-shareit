@@ -6,9 +6,6 @@ import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.model.Comment;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
     CommentMapper MAPPER = Mappers.getMapper(CommentMapper.class);
@@ -19,9 +16,4 @@ public interface CommentMapper {
 
     Comment toComment(CommentDto commentDto);
 
-    default List<CommentDto> toCommentDtoList(List<Comment> comments) {
-        return comments.stream()
-                .map(this::toCommentDto)
-                .collect(Collectors.toList());
-    }
 }

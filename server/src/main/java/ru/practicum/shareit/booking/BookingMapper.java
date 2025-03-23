@@ -13,11 +13,7 @@ public interface BookingMapper {
 
     BookingDto toBookingDto(Booking booking);
 
-    BookingRequestDto toBookingRequestDto(BookingRequestDto bookingRequestDto);
-
     Booking requestToBooking(BookingRequestDto bookingRequestDto);
-
-    Booking toBooking(BookingDto bookingDto);
 
     default List<BookingDto> toBookingDtoList(List<Booking> bookings) {
         return bookings.stream()

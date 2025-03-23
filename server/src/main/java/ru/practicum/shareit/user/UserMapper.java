@@ -14,8 +14,6 @@ public interface UserMapper {
 
     UserDto toUserDto(User user);
 
-    UserDto toUser(User user);
-
     default List<UserDto> toUserDtoList(List<User> users) {
         return users.stream()
                 .map(this::toUserDto)
