@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
 
-    //  ItemMapper MAPPER = Mappers.getMapper(ItemMapper.class);
-
     ItemDto toItemDto(Item item);
 
     Item toItem(ItemDto itemDto);

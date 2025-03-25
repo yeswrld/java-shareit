@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class RequestDto {
     @NotBlank
-    String description;
+    private String description;
 }

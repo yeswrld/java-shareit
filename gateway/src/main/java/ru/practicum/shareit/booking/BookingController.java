@@ -58,7 +58,7 @@ public class BookingController {
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getOwnerBookings(@RequestHeader(USERID_HEADER) Integer userId,
-                                                   @RequestParam(required = false, defaultValue = "ALL") BookingState bookingState) {
+                                                   @RequestParam(defaultValue = "ALL") BookingState bookingState) {
         log.info("Ищем бронирования пользователя с ИД = {}", userId);
         return bookingClient.getOwnerBookings(userId, bookingState);
     }
